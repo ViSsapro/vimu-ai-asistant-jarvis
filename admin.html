@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>ZIP Store Admin</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#080d12;
+    color:white;
+}
+
+header{
+    padding:20px 6%;
+    background:#111820;
+    border-bottom:1px solid #29343e;
+    display:flex;
+    justify-content:space-between;
+}
+
+.logo{
+    color:#39e58c;
+    font-weight:bold;
+    font-size:23px;
+}
+
+.container{
+    width:92%;
+    max-width:1100px;
+    margin:30px auto;
+}
+
+.box{
+    background:#121a22;
+    border:1px solid #29343e;
+    border-radius:14px;
+    padding:25px;
+    margin-bottom:25px;
+}
+
+input,
+textarea{
+    width:100%;
+    padding:13px;
+    margin:8px 0 15px;
+    background:#080d12;
+    border:1px solid #34414d;
+    border-radius:8px;
+    color:white;
+}
+
+textarea{
+    min-height:100px;
+}
+
+button{
+    padding:12px 18px;
+    border:0;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.green{
+    background:#39e58c;
+    color:#06100b;
+}
+
+.red{
+    background:#ff5050;
+    color:white;
+}
+
+.gray{
+    background:#33404c;
+    color:white;
+}
+
+.order{
+    background:#0d141b;
+    border:1px solid #29343e;
+    border-radius:12px;
+    padding:20px;
+    margin:15px 0;
+}
+
+.pending{
+    color:#ffc107;
+}
+
+.approved{
+    color:#39e58c;
+}
+
+.rejected{
+    color:#ff5050;
+}
+
+.receipt{
+    display:inline-block;
+    margin:12px 0;
+    color:#39e58c;
+}
+
+.hidden{
+    display:none;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="logo">
+ZIP STORE ADMIN
+</div>
+
+<button
+class="gray"
+onclick="logout()">
+
+Logout
+
+</button>
+
+</header>
+
+
+<div class="container">
+
+
+<!-- LOGIN -->
+
+<div
+id="loginBox"
+class="box">
+
+<h2>Admin Login</h2>
+
+<input
+id="email"
+type="email"
+placeholder="Admin email">
+
+<input
+id="password"
+type="password"
+placeholder="Password">
+
+<button
+class="green"
+onclick="login()">
+
+LOGIN
+
+</button>
+
+</div>
+
+
+
+<!-- ADMIN -->
+
+<div
+id="adminPanel"
+class="hidden">
+
+
+<!-- ADD PRODUCT -->
+
+<div class="box">
+
+<h2>📦 Add ZIP Product</h2>
+
+<label>Product Name</label>
+
+<input
+id="productName"
+placeholder="Example: Premium ZIP Package">
+
+<label>Description</label>
+
+<textarea
+id="description"
+placeholder="Product description"></textarea>
+
+<label>Price - LKR</label>
+
+<input
+id="price"
+type="number"
+placeholder="1000">
+
+<label>ZIP File</label>
+
+<input
+id="zipFile"
+type="file"
+accept=".zip">
+
+<button
+class="green"
+onclick="addProduct()">
+
+UPLOAD ZIP PRODUCT
+
+</button>
+
+<p id="uploadStatus"></p>
+
+</div>
+
+
+
+<!-- ORDERS -->
+
+<div class="box">
+
+<h2>🧾 Payment Requests</h2>
+
+<button
+class="gray"
+onclick="loadOrders()">
+
+REFRESH
+
+</button>
+
+<div id="orders">
+
+Loading...
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<script type="module">
+
+import {
+
+auth,
+db,
+storage,
+
+signInWithEmailAndPassword,
+signOut,
+onAuthStateChanged,
+
+collection,
+doc,
+getDocs,
+getDoc,
+setDoc,
+updateDoc,
+query,
+orderBy,
+serverTimestamp,
+
+ref,
+uploadBytes,
+getBlob
+
+} from "./firebase.js";
+
+
+/*
+=================================================
+CHANGE THIS
+=================================================
+*/
+
+const ADMIN_EMAIL =
+"YOUR_ADMIN_EMAIL@gmail.com";
+
+
+let currentUser = null;
+
+
+// ===============================================
+// AUTH
+// ===============================================
+
+onAuthStateChanged(auth,user => {
+
+    currentUser = user;
+
+
+    if(user){
+
+        if(user.email !== ADMIN_EMAIL){
+
+            alert("You are not an administrator.");
+
+            signOut(auth);
+
+            return;
+
+        }
+
+
+        document
+        .getElementById("loginBox")
+        .classList.add("hidden");
+
+
+        document
+        .getElementById("adminPanel")
+        .classList.remove("hidden");
+
+
+        loadOrders();
+
+    }else{
+
+        document
+        .getElementById("loginBox")
+        .classList.remove("hidden");
+
+
+        document
+        .getElementById("adminPanel")
+        .classList.add("hidden");
+
+    }
+
+});
+
+
+// ===============================================
+// LOGIN
+// ===============================================
+
+window.login = async function(){
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+
+    try{
+
+        await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
+
+    }catch(error){
+
+        alert(error.message);
+
+    }
+
+};
+
+
+// ===============================================
+// LOGOUT
+// ===============================================
+
+window.logout = async function(){
+
+    await signOut(auth);
+
+};
+
+
+// ===============================================
+// ADD PRODUCT
+// ===============================================
+
+window.addProduct = async function(){
+
+    if(!currentUser){
+
+        alert("Login first.");
+
+        return;
+
+    }
+
+
+    if(currentUser.email !== ADMIN_EMAIL){
+
+        alert("Admin only.");
+
+        return;
+
+    }
+
+
+    const name =
+        document
+        .getElementById("productName")
+        .value.trim();
+
+
+    const description =
+        document
+        .getElementById("description")
+        .value.trim();
+
+
+    const price =
+        Number(
+            document
+            .getElementById("price")
+            .value
+        );
+
+
+    const zip =
+        document
+        .getElementById("zipFile")
+        .files[0];
+
+
+    if(!name || !price || !zip){
+
+        alert(
+            "Enter product name, price and ZIP."
+        );
+
+        return;
+
+    }
+
+
+    if(!zip.name.toLowerCase().endsWith(".zip")){
+
+        alert("Only ZIP files are allowed.");
+
+        return;
+
+    }
+
+
+    /*
+    100MB limit for this example.
+    */
+
+    if(zip.size > 100 * 1024 * 1024){
+
+        alert(
+            "ZIP file must be smaller than 100MB."
+        );
+
+        return;
+
+    }
+
+
+    const status =
+        document.getElementById("uploadStatus");
+
+
+    status.innerText =
+        "Uploading...";
+
+
+    try{
+
+        const productRef =
+            doc(
+                collection(db,"products")
+            );
+
+
+        const storagePath =
+            `products/${productRef.id}/${zip.name}`;
+
+
+        const fileRef =
+            ref(storage,storagePath);
+
+
+        await uploadBytes(
+            fileRef,
+            zip,
+            {
+                contentType:"application/zip"
+            }
+        );
+
+
+        await setDoc(
+            productRef,
+            {
+
+                name:name,
+
+                description:description,
+
+                price:price,
+
+                storagePath:storagePath,
+
+                fileName:zip.name,
+
+                createdAt:serverTimestamp(),
+
+                active:true
+
+            }
+        );
+
+
+        status.innerText =
+            "✅ Product uploaded successfully.";
+
+
+        document
+        .getElementById("productName")
+        .value = "";
+
+
+        document
+        .getElementById("description")
+        .value = "";
+
+
+        document
+        .getElementById("price")
+        .value = "";
+
+
+        document
+        .getElementById("zipFile")
+        .value = "";
+
+
+    }catch(error){
+
+        console.error(error);
+
+        status.innerText =
+            "❌ " + error.message;
+
+    }
+
+};
+
+
+// ===============================================
+// LOAD ORDERS
+// ===============================================
+
+window.loadOrders = async function(){
+
+    const container =
+        document.getElementById("orders");
+
+
+    container.innerHTML =
+        "Loading...";
+
+
+    try{
+
+        const snapshot =
+            await getDocs(
+                query(
+                    collection(db,"orders"),
+                    orderBy("createdAt","desc")
+                )
+            );
+
+
+        container.innerHTML = "";
+
+
+        snapshot.forEach(item => {
+
+            const order =
+                item.data();
+
+
+            container.innerHTML += `
+
+            <div class="order">
+
+                <h3>
+                ${escapeHTML(order.productName)}
+                </h3>
+
+                <p>
+                Customer:
+                ${escapeHTML(order.email)}
+                </p>
+
+                <p>
+                Amount:
+                LKR ${Number(order.price).toLocaleString()}
+                </p>
+
+                <p>
+                Reference:
+                ${escapeHTML(order.reference)}
+                </p>
+
+                <p>
+                Status:
+                <strong class="${order.status}">
+                ${order.status.toUpperCase()}
+                </strong>
+                </p>
+
+
+                <button
+                class="gray"
+                onclick="viewReceipt('${item.id}')">
+
+                🧾 VIEW RECEIPT
+
+                </button>
+
+
+                ${
+                    order.status === "pending"
+                    ?
+                    `
+
+                    <button
+                    class="green"
+                    onclick="approve('${item.id}')">
+
+                    ✅ APPROVE
+
+                    </button>
+
+
+                    <button
+                    class="red"
+                    onclick="rejectOrder('${item.id}')">
+
+                    ❌ REJECT
+
+                    </button>
+
+                    `
+                    :
+                    ""
+                }
+
+            </div>
+
+            `;
+
+        });
+
+
+    }catch(error){
+
+        console.error(error);
+
+        container.innerHTML =
+            error.message;
+
+    }
+
+};
+
+
+// ===============================================
+// VIEW RECEIPT
+// ===============================================
+
+window.viewReceipt = async function(orderId){
+
+    try{
+
+        const snapshot =
+            await getDocs(
+                collection(db,"orderReceipts")
+            );
+
+
+        let receipt = null;
+
+
+        snapshot.forEach(item => {
+
+            const data = item.data();
+
+
+            if(data.orderId === orderId){
+
+                receipt = data;
+
+            }
+
+        });
+
+
+        if(!receipt){
+
+            alert("Receipt not found.");
+
+            return;
+
+        }
+
+
+        const fileRef =
+            ref(
+                storage,
+                receipt.storagePath
+            );
+
+
+        const blob =
+            await getBlob(fileRef);
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        window.open(url,"_blank");
+
+    }catch(error){
+
+        alert(
+            "Cannot open receipt: " +
+            error.message
+        );
+
+    }
+
+};
+
+
+// ===============================================
+// APPROVE
+// ===============================================
+
+window.approve = async function(orderId){
+
+    if(!confirm(
+        "Approve this payment?"
+    )){
+
+        return;
+
+    }
+
+
+    try{
+
+        await updateDoc(
+            doc(db,"orders",orderId),
+            {
+
+                status:"approved",
+
+                approvedAt:serverTimestamp(),
+
+                approvedBy:currentUser.email
+
+            }
+        );
+
+
+        alert(
+            "Payment approved."
+        );
+
+
+        loadOrders();
+
+    }catch(error){
+
+        alert(error.message);
+
+    }
+
+};
+
+
+// ===============================================
+// REJECT
+// ===============================================
+
+window.rejectOrder = async function(orderId){
+
+    if(!confirm(
+        "Reject this payment?"
+    )){
+
+        return;
+
+    }
+
+
+    try{
+
+        await updateDoc(
+            doc(db,"orders",orderId),
+            {
+
+                status:"rejected",
+
+                rejectedAt:serverTimestamp(),
+
+                rejectedBy:currentUser.email
+
+            }
+        );
+
+
+        alert(
+            "Payment rejected."
+        );
+
+
+        loadOrders();
+
+    }catch(error){
+
+        alert(error.message);
+
+    }
+
+};
+
+
+// ===============================================
+// ESCAPE
+// ===============================================
+
+function escapeHTML(value){
+
+    return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+</script>
+
+</body>
+</html>
