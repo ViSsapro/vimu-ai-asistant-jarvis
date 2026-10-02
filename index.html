@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>ZIP Store</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#080d12;
+    color:white;
+}
+
+header{
+    background:#111820;
+    padding:18px 7%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid #29343e;
+}
+
+.logo{
+    color:#39e58c;
+    font-size:25px;
+    font-weight:bold;
+}
+
+button{
+    cursor:pointer;
+}
+
+.nav-btn{
+    background:none;
+    border:0;
+    color:white;
+    margin-left:15px;
+}
+
+.container{
+    width:90%;
+    max-width:1100px;
+    margin:40px auto;
+}
+
+.hero{
+    text-align:center;
+    padding:50px 10px;
+}
+
+.hero h1{
+    font-size:45px;
+}
+
+.green{
+    color:#39e58c;
+}
+
+.products{
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:#121a22;
+    border:1px solid #29343e;
+    border-radius:15px;
+    overflow:hidden;
+}
+
+.card-top{
+    height:150px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:55px;
+}
+
+.card-body{
+    padding:20px;
+}
+
+.card-body p{
+    color:#9aa7b2;
+}
+
+.price{
+    color:#39e58c;
+    font-size:24px;
+    font-weight:bold;
+    margin:15px 0;
+}
+
+.btn{
+    width:100%;
+    padding:13px;
+    border:0;
+    border-radius:8px;
+    background:#39e58c;
+    color:#06100b;
+    font-weight:bold;
+}
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+.box{
+    max-width:600px;
+    margin:30px auto;
+    padding:30px;
+    background:#121a22;
+    border:1px solid #29343e;
+    border-radius:15px;
+}
+
+input{
+    width:100%;
+    padding:13px;
+    margin:8px 0 15px;
+    background:#090e13;
+    color:white;
+    border:1px solid #34414d;
+    border-radius:8px;
+}
+
+.bank{
+    background:#0d1913;
+    border:1px solid #28794e;
+    padding:20px;
+    border-radius:12px;
+    margin:20px 0;
+}
+
+.bank h3{
+    color:#39e58c;
+}
+
+.bank div{
+    padding:8px 0;
+}
+
+.status{
+    padding:15px;
+    border-radius:10px;
+    background:#18212a;
+    margin-top:15px;
+}
+
+.pending{
+    color:#ffc107;
+}
+
+.approved{
+    color:#39e58c;
+}
+
+.rejected{
+    color:#ff5c5c;
+}
+
+.hidden{
+    display:none;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="logo">
+ZIP STORE
+</div>
+
+<div>
+
+<button class="nav-btn"
+onclick="showPage('home')">
+Home
+</button>
+
+<button class="nav-btn"
+onclick="showPage('orders')">
+My Orders
+</button>
+
+<button class="nav-btn"
+onclick="logout()">
+Logout
+</button>
+
+</div>
+
+</header>
+
+
+<!-- HOME -->
+
+<section id="home" class="page active">
+
+<div class="container">
+
+<div class="hero">
+
+<h1>
+Digital <span class="green">
+ZIP Downloads
+</span>
+</h1>
+
+<p>
+Buy digital files securely.
+</p>
+
+</div>
+
+<div id="products"
+class="products">
+
+Loading products...
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- LOGIN -->
+
+<section id="login" class="page">
+
+<div class="box">
+
+<h2>Customer Login</h2>
+
+<input
+id="loginEmail"
+type="email"
+placeholder="Email">
+
+<input
+id="loginPassword"
+type="password"
+placeholder="Password">
+
+<button
+class="btn"
+onclick="login()">
+
+LOGIN
+
+</button>
+
+<br><br>
+
+<button
+class="btn"
+onclick="register()">
+
+CREATE ACCOUNT
+
+</button>
+
+</div>
+
+</section>
+
+
+
+<!-- PAYMENT -->
+
+<section id="payment" class="page">
+
+<div class="box">
+
+<h2>Payment</h2>
+
+<div id="selectedProduct"></div>
+
+
+<div class="bank">
+
+<h3>Commercial Bank</h3>
+
+<div>
+<strong>Account Name:</strong><br>
+I P Vimukthi Thuhina Wijerathna
+</div>
+
+<div>
+<strong>Account Number:</strong><br>
+8028840493
+</div>
+
+<div>
+<strong>Branch:</strong><br>
+Veyangoda
+</div>
+
+</div>
+
+
+<form id="paymentForm">
+
+<label>
+Bank Transfer Reference
+</label>
+
+<input
+id="reference"
+required
+placeholder="Transaction reference">
+
+
+<label>
+Payment Receipt
+</label>
+
+<input
+id="receipt"
+type="file"
+accept="image/*,.pdf"
+required>
+
+
+<button class="btn">
+
+SUBMIT PAYMENT
+
+</button>
+
+</form>
+
+</div>
+
+</section>
+
+
+
+<!-- ORDERS -->
+
+<section id="orders" class="page">
+
+<div class="container">
+
+<div class="box">
+
+<h2>My Orders</h2>
+
+<div id="ordersList">
+
+Loading...
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<script type="module">
+
+import {
+
+auth,
+db,
+storage,
+
+onAuthStateChanged,
+
+signInWithEmailAndPassword,
+createUserWithEmailAndPassword,
+signOut,
+
+collection,
+doc,
+addDoc,
+getDocs,
+query,
+orderBy,
+serverTimestamp,
+
+ref,
+uploadBytes,
+getBlob
+
+} from "./firebase.js";
+
+
+let currentUser = null;
+
+let selectedProduct = null;
+
+
+// ========================================
+// PAGE
+// ========================================
+
+window.showPage = function(page){
+
+    document
+    .querySelectorAll(".page")
+    .forEach(x =>
+        x.classList.remove("active")
+    );
+
+    document
+    .getElementById(page)
+    .classList.add("active");
+
+};
+
+
+// ========================================
+// AUTH STATE
+// ========================================
+
+onAuthStateChanged(auth, user => {
+
+    currentUser = user;
+
+    if(user){
+
+        loadOrders();
+
+    }
+
+});
+
+
+// ========================================
+// LOAD PRODUCTS
+// ========================================
+
+async function loadProducts(){
+
+    const container =
+        document.getElementById("products");
+
+    try{
+
+        const snapshot =
+            await getDocs(
+                collection(db,"products")
+            );
+
+        container.innerHTML = "";
+
+        snapshot.forEach(item => {
+
+            const product = item.data();
+
+            const id = item.id;
+
+            container.innerHTML += `
+
+            <div class="card">
+
+                <div class="card-top">
+                    📦
+                </div>
+
+                <div class="card-body">
+
+                    <h3>
+                    ${escapeHTML(product.name)}
+                    </h3>
+
+                    <p>
+                    ${escapeHTML(product.description || "")}
+                    </p>
+
+                    <div class="price">
+                    LKR ${Number(product.price).toLocaleString()}
+                    </div>
+
+                    <button
+                    class="btn"
+                    onclick="buy('${id}')">
+
+                    BUY NOW
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            `;
+
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+        container.innerHTML =
+        "Unable to load products.";
+
+    }
+
+}
+
+
+// ========================================
+// BUY
+// ========================================
+
+window.buy = async function(productId){
+
+    if(!currentUser){
+
+        showPage("login");
+
+        return;
+
+    }
+
+
+    const productSnap =
+        await getDocs(
+            query(
+                collection(db,"products")
+            )
+        );
+
+
+    let product = null;
+
+
+    productSnap.forEach(x => {
+
+        if(x.id === productId){
+
+            product = {
+                id:x.id,
+                ...x.data()
+            };
+
+        }
+
+    });
+
+
+    if(!product){
+
+        alert("Product not found.");
+
+        return;
+
+    }
+
+
+    selectedProduct = product;
+
+
+    document
+    .getElementById("selectedProduct")
+    .innerHTML = `
+
+        <div class="status">
+
+        <h3>
+        ${escapeHTML(product.name)}
+        </h3>
+
+        <div class="price">
+
+        LKR ${Number(product.price).toLocaleString()}
+
+        </div>
+
+        </div>
+
+    `;
+
+
+    showPage("payment");
+
+};
+
+
+// ========================================
+// LOGIN
+// ========================================
+
+window.login = async function(){
+
+    const email =
+        document.getElementById("loginEmail").value;
+
+    const password =
+        document.getElementById("loginPassword").value;
+
+
+    try{
+
+        await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
+
+        alert("Login successful.");
+
+        showPage("home");
+
+    }catch(error){
+
+        alert(error.message);
+
+    }
+
+};
+
+
+// ========================================
+// REGISTER
+// ========================================
+
+window.register = async function(){
+
+    const email =
+        document.getElementById("loginEmail").value;
+
+    const password =
+        document.getElementById("loginPassword").value;
+
+
+    if(password.length < 6){
+
+        alert("Password must be at least 6 characters.");
+
+        return;
+
+    }
+
+
+    try{
+
+        await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
+
+        alert("Account created.");
+
+        showPage("home");
+
+    }catch(error){
+
+        alert(error.message);
+
+    }
+
+};
+
+
+// ========================================
+// LOGOUT
+// ========================================
+
+window.logout = async function(){
+
+    await signOut(auth);
+
+    alert("Logged out.");
+
+};
+
+
+// ========================================
+// PAYMENT SUBMIT
+// ========================================
+
+document
+.getElementById("paymentForm")
+.addEventListener("submit", async e => {
+
+    e.preventDefault();
+
+
+    if(!currentUser){
+
+        alert("Please login.");
+
+        showPage("login");
+
+        return;
+
+    }
+
+
+    if(!selectedProduct){
+
+        alert("Please select a product.");
+
+        return;
+
+    }
+
+
+    const receipt =
+        document.getElementById("receipt")
+        .files[0];
+
+
+    const reference =
+        document.getElementById("reference")
+        .value.trim();
+
+
+    if(!receipt){
+
+        alert("Upload receipt.");
+
+        return;
+
+    }
+
+
+    // Limit receipt to 10MB
+
+    if(receipt.size > 10 * 1024 * 1024){
+
+        alert("Receipt must be smaller than 10MB.");
+
+        return;
+
+    }
+
+
+    try{
+
+        const orderRef =
+            await addDoc(
+                collection(db,"orders"),
+                {
+
+                    userId:currentUser.uid,
+
+                    email:currentUser.email,
+
+                    productId:selectedProduct.id,
+
+                    productName:selectedProduct.name,
+
+                    price:selectedProduct.price,
+
+                    reference:reference,
+
+                    status:"pending",
+
+                    createdAt:serverTimestamp()
+
+                }
+            );
+
+
+        const receiptRef =
+            ref(
+                storage,
+                `receipts/${currentUser.uid}/${orderRef.id}/${receipt.name}`
+            );
+
+
+        await uploadBytes(
+            receiptRef,
+            receipt
+        );
+
+
+        await addDoc(
+            collection(db,"orderReceipts"),
+            {
+
+                orderId:orderRef.id,
+
+                userId:currentUser.uid,
+
+                storagePath:receiptRef.fullPath,
+
+                fileName:receipt.name,
+
+                createdAt:serverTimestamp()
+
+            }
+        );
+
+
+        alert(
+            "Receipt submitted. Waiting for admin approval."
+        );
+
+
+        document
+        .getElementById("paymentForm")
+        .reset();
+
+
+        showPage("orders");
+
+        loadOrders();
+
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "Payment submission failed: " +
+            error.message
+        );
+
+    }
+
+});
+
+
+// ========================================
+// LOAD ORDERS
+// ========================================
+
+async function loadOrders(){
+
+    if(!currentUser){
+
+        return;
+
+    }
+
+
+    const container =
+        document.getElementById("ordersList");
+
+
+    container.innerHTML =
+        "Loading orders...";
+
+
+    try{
+
+        const snapshot =
+            await getDocs(
+                query(
+                    collection(db,"orders"),
+                    orderBy("createdAt","desc")
+                )
+            );
+
+
+        container.innerHTML = "";
+
+
+        let found = false;
+
+
+        snapshot.forEach(item => {
+
+            const order = item.data();
+
+
+            if(order.userId !== currentUser.uid){
+
+                return;
+
+            }
+
+
+            found = true;
+
+
+            let statusClass =
+                order.status;
+
+
+            container.innerHTML += `
+
+                <div class="status">
+
+                    <h3>
+                    ${escapeHTML(order.productName)}
+                    </h3>
+
+                    <p>
+                    Amount:
+                    LKR ${Number(order.price).toLocaleString()}
+                    </p>
+
+                    <p>
+                    Reference:
+                    ${escapeHTML(order.reference)}
+                    </p>
+
+                    <p>
+                    Status:
+                    <strong class="${statusClass}">
+                    ${order.status.toUpperCase()}
+                    </strong>
+                    </p>
+
+                    ${
+                        order.status === "approved"
+                        ?
+                        `
+                        <button
+                        class="btn"
+                        onclick="secureDownload('${item.id}')">
+
+                        📥 DOWNLOAD ZIP
+
+                        </button>
+                        `
+                        :
+                        ""
+                    }
+
+                </div>
+
+            `;
+
+        });
+
+
+        if(!found){
+
+            container.innerHTML =
+                "No orders yet.";
+
+        }
+
+
+    }catch(error){
+
+        console.error(error);
+
+        container.innerHTML =
+            error.message;
+
+    }
+
+}
+
+
+// ========================================
+// SECURE DOWNLOAD
+// ========================================
+
+window.secureDownload = async function(orderId){
+
+    try{
+
+        const orderSnap =
+            await getDocs(
+                query(
+                    collection(db,"orders")
+                )
+            );
+
+
+        let order = null;
+
+
+        orderSnap.forEach(item => {
+
+            if(item.id === orderId){
+
+                order = {
+                    id:item.id,
+                    ...item.data()
+                };
+
+            }
+
+        });
+
+
+        if(!order){
+
+            alert("Order not found.");
+
+            return;
+
+        }
+
+
+        if(order.userId !== currentUser.uid){
+
+            alert("Access denied.");
+
+            return;
+
+        }
+
+
+        if(order.status !== "approved"){
+
+            alert(
+                "This order has not been approved."
+            );
+
+            return;
+
+        }
+
+
+        const productSnap =
+            await getDocs(
+                query(
+                    collection(db,"products")
+                )
+            );
+
+
+        let product = null;
+
+
+        productSnap.forEach(item => {
+
+            if(item.id === order.productId){
+
+                product = item.data();
+
+            }
+
+        });
+
+
+        if(!product){
+
+            alert("Product file not found.");
+
+            return;
+
+        }
+
+
+        /*
+        IMPORTANT:
+
+        getBlob() uses Firebase Storage authentication
+        and Storage Security Rules.
+
+        The ZIP is not made publicly downloadable.
+        */
+
+        const fileRef =
+            ref(storage,product.storagePath);
+
+
+        const blob =
+            await getBlob(fileRef);
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const a =
+            document.createElement("a");
+
+        a.href = url;
+
+        a.download =
+            product.fileName || "download.zip";
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        a.remove();
+
+        URL.revokeObjectURL(url);
+
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "Secure download failed: " +
+            error.message
+        );
+
+    }
+
+};
+
+
+// ========================================
+// ESCAPE HTML
+// ========================================
+
+function escapeHTML(value){
+
+    return String(value || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+
+}
+
+
+loadProducts();
+
+</script>
+
+</body>
+</html>
