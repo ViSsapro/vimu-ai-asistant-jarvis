@@ -4,157 +4,606 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Download Center</title>
+  <title>VissaPro - Download Center</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="container">
+
   <div class="logo">Vissa<span>Pro</span></div>
 
   <div class="card">
+
     <div class="icon">💳</div>
+
     <h1>Get Your ZIP File</h1>
-    <p class="subtitle">Complete the $5 payment and upload your receipt.</p>
+
+    <p class="subtitle">
+      Complete the $5 payment and upload your receipt.
+    </p>
 
     <div class="price">$5.00</div>
 
     <div class="payment-box">
       <h3>Payment Information</h3>
-      <p>Send <b>$5</b> to the payment account provided by the administrator.</p>
-      <p class="small">After payment, upload your payment receipt below.</p>
+
+      <p>
+        Send <b>$5</b> to the payment account provided by the administrator.
+      </p>
+
+      <p class="small">
+        After payment, upload your payment receipt below.
+      </p>
     </div>
 
     <form id="paymentForm">
-      <input id="email" type="email" placeholder="Your Email Address" required>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Your Email Address"
+        autocomplete="email"
+        required
+      >
 
       <label class="upload">
-        <span id="fileText">📷 Choose Payment Receipt</span>
-        <input id="receipt" type="file" accept="image/*,.pdf" required>
+
+        <span id="fileText">
+          📷 Choose Payment Receipt
+        </span>
+
+        <input
+          id="receipt"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,application/pdf"
+          required
+        >
+
       </label>
 
-      <button type="submit" id="submitBtn">
+      <button
+        type="submit"
+        id="submitBtn"
+      >
         SUBMIT PAYMENT
       </button>
+
     </form>
 
     <div id="message"></div>
+
   </div>
 
-  <div class="status-card hidden" id="statusCard">
+
+  <div
+    class="status-card hidden"
+    id="statusCard"
+  >
+
     <div id="statusIcon">⏳</div>
-    <h2 id="statusTitle">Payment Pending</h2>
-    <p id="statusText">Your payment is being verified.</p>
-    <a id="downloadBtn" class="download hidden" target="_blank">
+
+    <h2 id="statusTitle">
+      Payment Pending
+    </h2>
+
+    <p id="statusText">
+      Your payment is being verified.
+    </p>
+
+    <a
+      id="downloadBtn"
+      class="download hidden"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       📦 GET ZIP FILE
     </a>
+
   </div>
+
 </div>
 
-<script>
-const API = "YOUR_WORKER_URL";
 
-const form = document.getElementById("paymentForm");
-const receipt = document.getElementById("receipt");
-const fileText = document.getElementById("fileText");
-const message = document.getElementById("message");
+<script>
+
+/* =========================================================
+   VissaPro Worker API
+   ========================================================= */
+
+const API =
+  "https://vissapro-payment.vissapro581.workers.dev";
+
+
+/* =========================================================
+   Elements
+   ========================================================= */
+
+const form =
+  document.getElementById("paymentForm");
+
+const emailInput =
+  document.getElementById("email");
+
+const receipt =
+  document.getElementById("receipt");
+
+const fileText =
+  document.getElementById("fileText");
+
+const message =
+  document.getElementById("message");
+
+const submitBtn =
+  document.getElementById("submitBtn");
+
+
+/* =========================================================
+   Receipt File Selection
+   ========================================================= */
 
 receipt.addEventListener("change", () => {
-  if (receipt.files.length) {
-    fileText.textContent = "✅ " + receipt.files[0].name;
+
+  if (receipt.files && receipt.files.length > 0) {
+
+    const file = receipt.files[0];
+
+    const sizeMB =
+      file.size / (1024 * 1024);
+
+    fileText.textContent =
+      "✅ " + file.name +
+      " (" + sizeMB.toFixed(2) + " MB)";
+
+  } else {
+
+    fileText.textContent =
+      "📷 Choose Payment Receipt";
+
   }
+
 });
+
+
+/* =========================================================
+   Submit Payment
+   ========================================================= */
 
 form.addEventListener("submit", async (e) => {
+
   e.preventDefault();
 
-  const email = document.getElementById("email").value.trim();
-  const file = receipt.files[0];
 
-  if (!file) return;
+  const email =
+    emailInput.value.trim();
 
-  const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-  btn.textContent = "UPLOADING...";
+  const file =
+    receipt.files[0];
 
-  const fd = new FormData();
-  fd.append("email", email);
-  fd.append("receipt", file);
 
-  try {
-    const response = await fetch(API + "/api/payment", {
-      method: "POST",
-      body: fd
-    });
+  /* Email validation */
 
-    const data = await response.json();
+  if (!email) {
 
-    if (!response.ok) {
-      throw new Error(data.error || "Something went wrong");
-    }
-
-    message.className = "success";
-    message.textContent = "✅ Payment submitted successfully.";
-
-    form.reset();
-    fileText.textContent = "📷 Choose Payment Receipt";
-
-    loadStatus(email);
-
-  } catch (err) {
     message.className = "error";
-    message.textContent = "❌ " + err.message;
+    message.textContent =
+      "❌ Please enter your email address.";
+
+    return;
+
   }
 
-  btn.disabled = false;
-  btn.textContent = "SUBMIT PAYMENT";
-});
 
-async function loadStatus(email) {
-  const card = document.getElementById("statusCard");
+  /* File validation */
+
+  if (!file) {
+
+    message.className = "error";
+    message.textContent =
+      "❌ Please select your payment receipt.";
+
+    return;
+
+  }
+
+
+  /* Allowed file types */
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "application/pdf"
+  ];
+
+
+  if (!allowedTypes.includes(file.type)) {
+
+    message.className = "error";
+
+    message.textContent =
+      "❌ Please upload JPG, PNG, WEBP or PDF.";
+
+    return;
+
+  }
+
+
+  /* Maximum 10MB */
+
+  const maxSize =
+    10 * 1024 * 1024;
+
+
+  if (file.size > maxSize) {
+
+    message.className = "error";
+
+    message.textContent =
+      "❌ Receipt must be smaller than 10MB.";
+
+    return;
+
+  }
+
+
+  /* Button loading state */
+
+  submitBtn.disabled = true;
+
+  submitBtn.textContent =
+    "UPLOADING...";
+
+  message.className = "";
+
+  message.textContent =
+    "Uploading payment receipt...";
+
 
   try {
-    const response = await fetch(
-      API + "/api/status?email=" + encodeURIComponent(email)
+
+    /* FormData */
+
+    const fd =
+      new FormData();
+
+    fd.append(
+      "email",
+      email
     );
 
-    const data = await response.json();
+    fd.append(
+      "receipt",
+      file
+    );
 
-    if (!data.status) return;
 
-    card.classList.remove("hidden");
+    /* Send to Worker */
 
-    const icon = document.getElementById("statusIcon");
-    const title = document.getElementById("statusTitle");
-    const text = document.getElementById("statusText");
-    const download = document.getElementById("downloadBtn");
+    const response =
+      await fetch(
+        API + "/api/payment",
+        {
+          method: "POST",
+          body: fd
+        }
+      );
 
-    if (data.status === "pending") {
-      icon.textContent = "⏳";
-      title.textContent = "Payment Pending";
-      text.textContent = "We're checking your payment. Please wait.";
-      download.classList.add("hidden");
+
+    /* Read response safely */
+
+    let data;
+
+    try {
+
+      data =
+        await response.json();
+
+    } catch {
+
+      throw new Error(
+        "Server returned an invalid response."
+      );
+
     }
 
-    if (data.status === "approved") {
-      icon.textContent = "✅";
-      title.textContent = "Payment Approved";
-      text.textContent = "Your payment has been verified successfully.";
-      download.href = data.zip_url;
-      download.classList.remove("hidden");
+
+    /* Server error */
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        "Payment submission failed."
+      );
+
     }
 
-    if (data.status === "rejected") {
-      icon.textContent = "❌";
-      title.textContent = "Payment Rejected";
-      text.textContent = data.reason || "Your payment could not be verified.";
-      download.classList.add("hidden");
+
+    /* Success */
+
+    message.className =
+      "success";
+
+    message.textContent =
+      "✅ Payment submitted successfully!";
+
+
+    /* Reset form */
+
+    form.reset();
+
+    fileText.textContent =
+      "📷 Choose Payment Receipt";
+
+
+    /* Show status */
+
+    await loadStatus(email);
+
+
+  } catch (err) {
+
+    console.error(
+      "Payment Error:",
+      err
+    );
+
+
+    message.className =
+      "error";
+
+    message.textContent =
+      "❌ " + (
+        err.message ||
+        "Something went wrong."
+      );
+
+  }
+
+
+  /* Restore button */
+
+  submitBtn.disabled = false;
+
+  submitBtn.textContent =
+    "SUBMIT PAYMENT";
+
+});
+
+
+/* =========================================================
+   Load Payment Status
+   ========================================================= */
+
+async function loadStatus(email) {
+
+  const card =
+    document.getElementById(
+      "statusCard"
+    );
+
+
+  try {
+
+    const response =
+      await fetch(
+        API +
+        "/api/status?email=" +
+        encodeURIComponent(email)
+      );
+
+
+    let data;
+
+    try {
+
+      data =
+        await response.json();
+
+    } catch {
+
+      console.error(
+        "Invalid status response"
+      );
+
+      return;
+
+    }
+
+
+    if (
+      !response.ok ||
+      !data.status
+    ) {
+
+      return;
+
+    }
+
+
+    /* Show status card */
+
+    card.classList.remove(
+      "hidden"
+    );
+
+
+    const icon =
+      document.getElementById(
+        "statusIcon"
+      );
+
+    const title =
+      document.getElementById(
+        "statusTitle"
+      );
+
+    const text =
+      document.getElementById(
+        "statusText"
+      );
+
+    const download =
+      document.getElementById(
+        "downloadBtn"
+      );
+
+
+    /* =====================================================
+       PENDING
+       ===================================================== */
+
+    if (
+      data.status === "pending"
+    ) {
+
+      icon.textContent =
+        "⏳";
+
+      title.textContent =
+        "Payment Pending";
+
+      text.textContent =
+        "We're checking your payment. Please wait.";
+
+      download.classList.add(
+        "hidden"
+      );
+
+      download.removeAttribute(
+        "href"
+      );
+
+    }
+
+
+    /* =====================================================
+       APPROVED
+       ===================================================== */
+
+    else if (
+      data.status === "approved"
+    ) {
+
+      icon.textContent =
+        "✅";
+
+      title.textContent =
+        "Payment Approved";
+
+      text.textContent =
+        "Your payment has been verified successfully.";
+
+      if (data.zip_url) {
+
+        download.href =
+          data.zip_url;
+
+        download.classList.remove(
+          "hidden"
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       REJECTED
+       ===================================================== */
+
+    else if (
+      data.status === "rejected"
+    ) {
+
+      icon.textContent =
+        "❌";
+
+      title.textContent =
+        "Payment Rejected";
+
+      text.textContent =
+        data.reason ||
+        "Your payment could not be verified.";
+
+      download.classList.add(
+        "hidden"
+      );
+
+      download.removeAttribute(
+        "href"
+      );
+
     }
 
   } catch (err) {
-    console.log(err);
+
+    console.error(
+      "Status Error:",
+      err
+    );
+
   }
+
 }
+
+
+/* =========================================================
+   Check Existing Payment Status
+   ========================================================= */
+
+emailInput.addEventListener(
+  "blur",
+  () => {
+
+    const email =
+      emailInput.value.trim();
+
+    if (email) {
+
+      loadStatus(email);
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   Initial API Check
+   ========================================================= */
+
+async function checkAPI() {
+
+  try {
+
+    const response =
+      await fetch(API);
+
+    const text =
+      await response.text();
+
+    console.log(
+      "VissaPro API:",
+      text
+    );
+
+  } catch (err) {
+
+    console.error(
+      "API Connection Error:",
+      err
+    );
+
+  }
+
+}
+
+
+checkAPI();
+
 </script>
 
 </body>
