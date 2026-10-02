@@ -1,0 +1,328 @@
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top, #182848, #070b14 55%);
+  color: white;
+  min-height: 100vh;
+}
+
+.container {
+  width: min(94%, 520px);
+  margin: auto;
+  padding: 35px 0;
+}
+
+.logo {
+  text-align: center;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  margin-bottom: 25px;
+}
+
+.logo span {
+  color: #38ef7d;
+}
+
+.card,
+.status-card,
+.payment,
+.stat {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+}
+
+.card {
+  border-radius: 25px;
+  padding: 30px;
+  text-align: center;
+}
+
+.icon {
+  font-size: 55px;
+}
+
+h1 {
+  margin: 12px 0 8px;
+}
+
+.subtitle {
+  color: #aeb8c9;
+}
+
+.price {
+  font-size: 46px;
+  font-weight: 900;
+  margin: 20px;
+  color: #38ef7d;
+}
+
+.payment-box {
+  text-align: left;
+  background: rgba(0,0,0,.2);
+  padding: 18px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+}
+
+.payment-box p {
+  color: #c5ccd8;
+  line-height: 1.6;
+  margin-top: 7px;
+}
+
+.small {
+  font-size: 13px;
+}
+
+input[type="email"] {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #333b4d;
+  background: #111725;
+  color: white;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  outline: none;
+}
+
+.upload {
+  display: block;
+  border: 2px dashed #3b465b;
+  border-radius: 14px;
+  padding: 22px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  color: #dbe2ee;
+}
+
+.upload input {
+  display: none;
+}
+
+button,
+.download {
+  border: 0;
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+#submitBtn {
+  background: linear-gradient(135deg,#ff416c,#ff4b2b);
+  color: white;
+}
+
+#submitBtn:disabled {
+  opacity: .6;
+}
+
+#message {
+  margin-top: 15px;
+}
+
+.success {
+  color: #38ef7d;
+}
+
+.error {
+  color: #ff687c;
+}
+
+.status-card {
+  margin-top: 20px;
+  border-radius: 22px;
+  padding: 25px;
+  text-align: center;
+}
+
+.status-card #statusIcon {
+  font-size: 45px;
+}
+
+.status-card h2 {
+  margin: 10px 0;
+}
+
+.status-card p {
+  color: #b8c1d0;
+}
+
+.download {
+  margin-top: 20px;
+  background: linear-gradient(135deg,#11998e,#38ef7d);
+  color: #04130c;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ADMIN */
+
+.admin-container {
+  width: min(95%, 1000px);
+  margin: auto;
+  padding: 30px 0;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.admin-header .logo {
+  text-align: left;
+  margin: 0;
+}
+
+.admin-header p {
+  color: #9faabc;
+}
+
+.refresh {
+  width: auto;
+  background: #202a3c;
+  color: white;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.stat {
+  border-radius: 18px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stat span {
+  display: block;
+  font-size: 28px;
+}
+
+.stat b {
+  display: block;
+  font-size: 30px;
+  margin: 7px;
+}
+
+.stat small {
+  color: #9da8ba;
+}
+
+.payment {
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.payment-info h3 {
+  margin-bottom: 8px;
+}
+
+.payment-info p {
+  color: #aeb8c9;
+  margin: 5px 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.badge.pending {
+  background: #66500a;
+  color: #ffd84d;
+}
+
+.badge.approved {
+  background: #0b542f;
+  color: #48f59a;
+}
+
+.badge.rejected {
+  background: #5d1824;
+  color: #ff7184;
+}
+
+.payment-actions {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payment-actions button,
+.receipt-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.receipt-btn {
+  background: #283348;
+  color: white;
+}
+
+.approve {
+  background: #19c968;
+  color: #03150b;
+}
+
+.reject {
+  background: #e83e58;
+  color: white;
+}
+
+.loading {
+  text-align: center;
+  padding: 50px;
+  color: #aeb8c9;
+}
+
+@media(max-width:650px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .payment {
+    flex-direction: column;
+  }
+
+  .payment-actions {
+    width: 100%;
+  }
+
+  .admin-header {
+    align-items: flex-start;
+  }
+}
+
